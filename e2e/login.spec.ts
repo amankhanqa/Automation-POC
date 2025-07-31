@@ -4,8 +4,8 @@ import { test, expect } from '@playwright/test';
 import { LoginPage } from '../pages/LoginPage';   // Import your new Page Object
 
 // Access credentials from environment variables
-const USERNAME = process.env.TRINITY_USERNAME;
-const PASSWORD = process.env.TRINITY_PASSWORD;
+const USERNAME = process.env.ADMIN_USERNAME;
+const PASSWORD = process.env.ADMIN_PASSWORD;
 
 // --- IMPORTANT VALIDATION ---
 if (!USERNAME || !PASSWORD) {
