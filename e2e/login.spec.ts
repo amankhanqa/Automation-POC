@@ -1,40 +1,46 @@
-import { test, expect } from '@playwright/test';
+import 'dotenv/config'; // Make sure this is the VERY FIRST LINE
 
+import { test, expect } from '@playwright/test';
+import { LoginPage } from '../pages/LoginPage';   // Import your new Page Object
 
 // Access credentials from environment variables
-const APPLICATION_URL = process.env.APP_URL;
-const USERNAME = process.env.ADMIN_USERNAME;
-const PASSWORD = process.env.ADMIN_PASSWORD;
+const USERNAME = process.env.TRINITY_USERNAME;
+const PASSWORD = process.env.TRINITY_PASSWORD;
 
-// Use 'test.describe' to group related tests,
-// especially useful for end-to-end flows.
-test.describe('Login Functionality', () => {
+// --- IMPORTANT VALIDATION ---
+if (!USERNAME || !PASSWORD) {
+  console.error('Environment variables TRINITY_USERNAME and TRINITY_PASSWORD must be set in your .env file or CI/CD secrets.');
+  test.skip('Login tests skipped: Credentials not provided via environment variables', () => {});
+}
+// -----------------------------
 
-  // Define a test case for successful login
-  test('should allow a user to log in successfully', async ({ page }) => {
-    // 1. Navigate to the login page
-    await page.goto(APPLICATION_URL!);
+test.describe('Trinity Minutecrew App Login', () => {
+  let loginPage: LoginPage; // Declare a variable to hold the LoginPage object
 
-    // 2. Locate elements and perform actions
-    await page.fill('input[type="text"]', USERNAME!);
-    await page.fill('input[type="password"]', PASSWORD!);
-
-    // For the Login button:
-    await page.locator('button:has-text("Login")').click();
-
-    // 3. Assertions: Verify the outcome
-    await expect(page).toHaveURL(/.*home/, { timeout: 30000 }); // successful login redirects to /dashboard
-    //await expect(page.locator('.welcome-message')).toContainText('Welcome back!'); // welcome message assertion
+  // This hook runs before each test in this describe block
+  test.beforeEach(async ({ page }) => {
+    loginPage = new LoginPage(page); // Initialize LoginPage with the current page fixture
+    await loginPage.goto(); // Navigate to the login page using the POM method
   });
 
-  // more tests here, e.g., for invalid login, forgotten password, etc.
-  test('should show error for invalid credentials', async ({ page }) => {
-    await page.goto(APPLICATION_URL!);
-    await page.fill('input[type="text"]', 'invalid_username');
-    await page.fill('input[type="password"]', 'invalid_pswd');
-    await page.locator('button:has-text("Login")').click();
+  test('should allow a user to log in successfully to Trinity Minutecrew', async () => {
+    // Using the composite login method from the Page Object
+    await loginPage.login(USERNAME!, PASSWORD!);
 
-    await expect(page.locator('div.mud-alert-message')).toHaveText('Invalid username or password.');
+    // Assertions for successful login (replace with your actual post-login verification)
+    await loginPage.verifySuccessfulLogin('/dashboard'); // Example: expects URL to change to /dashboard
+  });
+
+  test('should display an error for invalid login credentials', async () => {
+    const INVALID_USERNAME = process.env.TRINITY_INVALID_USERNAME || 'invalid@example.com';
+    const INVALID_PASSWORD = process.env.TRINITY_INVALID_PASSWORD || 'wrongpass';
+
+    // Using the composite login method from the Page Object
+    await loginPage.login(INVALID_USERNAME, INVALID_PASSWORD);
+
+    // Assertions for invalid login
+    await loginPage.verifyErrorMessage('Invalid credentials'); // Example: verify error message text
+    await loginPage.verifyUnsuccessfulLogin(); // Verify still on login page and error visible
   });
 
 });
