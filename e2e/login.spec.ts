@@ -28,7 +28,7 @@ test.describe('Trinity Minutecrew App Login', () => {
     await loginPage.login(USERNAME!, PASSWORD!);
 
     // Assertions for successful login (replace with your actual post-login verification)
-    await loginPage.verifySuccessfulLogin('/dashboard'); // Example: expects URL to change to /dashboard
+    await loginPage.verifySuccessfulLogin('/home'); // Example: expects URL to change to /dashboard
   });
 
   test('should display an error for invalid login credentials', async () => {
@@ -39,7 +39,7 @@ test.describe('Trinity Minutecrew App Login', () => {
     await loginPage.login(INVALID_USERNAME, INVALID_PASSWORD);
 
     // Assertions for invalid login
-    await loginPage.verifyErrorMessage('Invalid credentials'); // Example: verify error message text
+    await loginPage.verifyErrorMessage('Invalid username or password.'); // Example: verify error message text
     await loginPage.verifyUnsuccessfulLogin(); // Verify still on login page and error visible
   });
 

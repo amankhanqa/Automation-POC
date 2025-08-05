@@ -19,7 +19,8 @@ export class LoginPage {
     // Use the robust selectors we identified earlier
     this.usernameInput = page.locator('input[type="text"][required]');
     this.passwordInput = page.locator('input[type="password"]');
-    this.loginButton = page.locator('button:has-text("Login")');
+    this.loginButton = page.getByRole('button', { name: 'Login', exact: true });
+    //this.loginButton = page.locator('button:has-text("Login")');
     this.errorMessage = page.locator('.mud-alert-message'); // Selector for the error message
   }
 
